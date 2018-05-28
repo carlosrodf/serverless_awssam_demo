@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: |
+  A sample Serverless project
+
+Resources:
+  ExampleS3Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: nodejs6.10
+      Handler: code/processor.handler
+      Environment:
+        Variables:
+          DEST_BUCKET: !Ref ProcessedFilesBucket
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: 'arn:aws:s3:::*'
+      Events:
+        S3CreateObject:
+          Type: S3
+          Properties:
+            Bucket: !Ref NonProcessedFilesBucket
+            Events:
+              - "s3:ObjectCreated:*"
+
+  HelloFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: code/hello.handler
+      Runtime: nodejs6.10
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+
+  GoodbyeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: code/goodbye.handler
+      Runtime: nodejs6.10
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /goodbye
+            Method: get
+
+  NonProcessedFilesBucket:
+    Type: AWS::S3::Bucket
+
+  ProcessedFilesBucket:
+    Type: AWS::S3::Bucket
