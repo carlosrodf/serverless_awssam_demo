@@ -1,0 +1,51 @@
+# Welcome to serverless. Read the docs
+# https://serverless.com/framework/docs/
+
+service: serverless-framework-demo
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-west-2
+
+functions:
+
+  ExampleS3Function:
+    handler: code/processor.handler
+    environment:
+      DEST_BUCKET:
+        Ref: ProcessedFilesBucket
+    events:
+      - s3:
+          bucket: demo-source-bucket-123456789
+          event: s3:ObjectCreated:*
+
+  HelloFunction:
+    handler: code/hello.handler
+    events:
+      - http:
+          path: /hello
+          method: get
+          cors: true
+
+  GoodbyeFunction:
+    handler: code/goodbye.handler
+    events:
+      - http:
+          path: /goodbye
+          method: get
+          cors: true
+
+resources:
+
+  Resources:
+
+    # NonProcessedFilesBucket:
+    #   Type: AWS::S3::Bucket
+    #   Properties:
+    #     BucketName: demo-source-bucket-123456789
+
+    ProcessedFilesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: demo-destination-bucket-123456789
